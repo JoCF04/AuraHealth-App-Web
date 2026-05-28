@@ -35,7 +35,7 @@ public class UserService {
         this.passwordEncoder         = passwordEncoder;
     }
 
-    // ── HU01 — Registrar usuario ──────────────────────────────────────────────
+    // ── HU01 — Registrar usuario (Jose) ──────────────────────────────────────
 
     @Transactional
     public UserResponseDTO registrarUsuario(UserRegistrationRequestDTO dto) {
@@ -43,11 +43,9 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                 "El correo '" + dto.getEmail() + "' ya está registrado");
         }
-
         String roleName = "ROLE_" + (dto.getRole() != null ? dto.getRole() : "USER");
         Role userRole = roleRepository.findByName(roleName)
             .orElseGet(() -> roleRepository.save(new Role(roleName)));
-
         User user = new User();
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
@@ -55,18 +53,23 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(dto.getPassword()));
         user.setGender(dto.getGender());
         user.setIsEmailVerified(true);
-        user.setPreferredLanguage(
-            dto.getPreferredLanguage() != null ? dto.getPreferredLanguage() : "es");
+        user.setPreferredLanguage(dto.getPreferredLanguage() != null ? dto.getPreferredLanguage() : "es");
         user.setRoles(new HashSet<>(Set.of(userRole)));
-
         if (dto.getBirthDate() != null && !dto.getBirthDate().isBlank()) {
             user.setBirthDate(LocalDate.parse(dto.getBirthDate()));
         }
-
         return toUserDto(userRepository.save(user));
     }
 
-    // ── Mappers compartidos (usados por todas las HUs) ────────────────────────
+    // ── HU04 — Ver perfil (Lucia) ─────────────────────────────────────────────
+
+    @Transactional(readOnly = true)
+    public UserResponseDTO obtenerUsuarioPorId(Long id) {
+        User user = requireUser(id);
+        return toUserDto(user);
+    }
+
+    // ── Mappers compartidos ───────────────────────────────────────────────────
 
     public UserResponseDTO toUserDto(User user) {
         UserResponseDTO dto = new UserResponseDTO();
@@ -74,16 +77,13 @@ public class UserService {
         dto.setFirstName(user.getFirstName());
         dto.setLastName(user.getLastName());
         dto.setEmail(user.getEmail());
-        dto.setRole(user.getRoles().stream()
-            .map(r -> r.getName()).findFirst().orElse(null));
+        dto.setRole(user.getRoles().stream().map(r -> r.getName()).findFirst().orElse(null));
         dto.setBirthDate(user.getBirthDate());
         dto.setGender(user.getGender());
         dto.setIsEmailVerified(user.getIsEmailVerified());
         dto.setPreferredLanguage(user.getPreferredLanguage());
         dto.setCreatedAt(user.getCreatedAt());
-        dto.setHealthProfile(user.getHealthProfile() != null
-            ? toHealthProfileDto(user.getHealthProfile())
-            : null);
+        dto.setHealthProfile(user.getHealthProfile() != null ? toHealthProfileDto(user.getHealthProfile()) : null);
         return dto;
     }
 
