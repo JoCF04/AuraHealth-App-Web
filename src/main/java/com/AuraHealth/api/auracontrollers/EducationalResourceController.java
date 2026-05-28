@@ -1,7 +1,6 @@
 package com.AuraHealth.api.auracontrollers;
 
 import com.AuraHealth.api.auradtos.*;
-import com.AuraHealth.api.auraservices.EducationalResourceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
