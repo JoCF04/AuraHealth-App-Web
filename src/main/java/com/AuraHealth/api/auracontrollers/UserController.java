@@ -26,26 +26,38 @@ public class UserController {
         this.userService = userService;
     }
 
+    // ── HU01 — Registrar usuario ──────────────────────────────────────
+
     @Operation(summary = "HU01 — Registrar nuevo usuario", description = "Acceso: PÚBLICO")
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Usuario registrado."),
-        @ApiResponse(responseCode = "409", description = "Correo ya registrado.")
+        @ApiResponse(responseCode = "400", description = "Datos inválidos."),
+        @ApiResponse(responseCode = "409", description = "El correo ya está registrado.")
     })
     @PostMapping("/users")
     public ResponseEntity<UserResponseDTO> registerUser(@Valid @RequestBody UserRegistrationRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.registrarUsuario(dto));
     }
 
-    @Operation(summary = "HU04 — Obtener perfil del usuario",
+    // ── HU04 — Ver perfil ─────────────────────────────────────────────
+
+    @Operation(summary = "HU04 — Obtener perfil completo del usuario",
                description = "Roles: USER · DOCTOR · ADMIN",
                security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Perfil obtenido."),
+        @ApiResponse(responseCode = "401", description = "Token inválido o expirado."),
+        @ApiResponse(responseCode = "404", description = "Usuario no encontrado.")
+    })
     @PreAuthorize("hasAnyRole('USER','DOCTOR','ADMIN')")
     @GetMapping("/users/{id}")
-    public ResponseEntity<UserResponseDTO> getUser(@PathVariable Long id) {
+    public ResponseEntity<UserResponseDTO> getUser(
+            @Parameter(description = "ID del usuario", example = "1", required = true)
+            @PathVariable Long id) {
         return ResponseEntity.ok(userService.obtenerUsuarioPorId(id));
     }
 
-    // ── HU05 — Actualizar perfil de salud (Stefany) ───────────────────────────
+    // ── HU05 — Actualizar perfil de salud ───────────────────────────
 
     @Operation(summary = "HU05 — Actualizar perfil de salud (IMC centralizado en backend)",
                description = "Roles: USER · DOCTOR · ADMIN — El backend calcula BMI según OMS.",
@@ -64,7 +76,7 @@ public class UserController {
         return ResponseEntity.ok(userService.actualizarPerfilDeSalud(userId, dto));
     }
 
-    // ── HU07 — Signos vitales (Stefany) ──────────────────────────────────────
+    // ── HU07 — Signos vitales ──────────────────────────────────────
 
     @Operation(summary = "HU07 — Registrar signos vitales (Motor de Reglas Médicas)",
                description = "Roles: USER · DOCTOR · ADMIN — Evalúa glucosa >=126, presión >=140/90, colesterol >=240.",
