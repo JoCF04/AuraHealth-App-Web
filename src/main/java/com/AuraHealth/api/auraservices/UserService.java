@@ -110,7 +110,7 @@ public class UserService {
     public UserResponseDTO cambiarIdioma(Long id, String lang) {
         if (!SUPPORTED_LANGUAGES.contains(lang))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "Código de idioma inválido: '" + lang + "'. Valores aceptados: " + SUPPORTED_LANGUAGES);
+                    "Código de idioma inválido: '" + lang + "'. Valores aceptados: " + SUPPORTED_LANGUAGES);
         User user = requireUser(id);
         user.setPreferredLanguage(lang);
         return toUserDto(userRepository.save(user));
@@ -148,6 +148,6 @@ public class UserService {
 
     protected User requireUser(Long id) {
         return userRepository.findByIdWithHealthProfile(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + id));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + id));
     }
 }

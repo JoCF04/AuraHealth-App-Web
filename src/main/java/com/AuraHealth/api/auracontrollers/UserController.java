@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "EP01-EP02 · Users & Health Profiles",
-     description = "HU01-HU07 — Registro, perfil, signos vitales, IMC e idioma")
+        description = "HU01-HU07 — Registro, perfil, signos vitales, IMC e idioma")
 public class UserController {
 
     private final UserService userService;
@@ -49,12 +49,12 @@ public class UserController {
     // ── HU06 — Cambiar idioma preferido (Masiel) ──────────────────────────────
 
     @Operation(summary = "HU06 — Actualizar idioma preferido (es | en)",
-               description = "Roles: USER · ADMIN",
-               security = @SecurityRequirement(name = "bearerAuth"))
+            description = "Roles: USER · ADMIN",
+            security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Idioma actualizado."),
-        @ApiResponse(responseCode = "400", description = "Código de idioma inválido (solo: es, en)."),
-        @ApiResponse(responseCode = "404", description = "Usuario no encontrado.")
+            @ApiResponse(responseCode = "200", description = "Idioma actualizado."),
+            @ApiResponse(responseCode = "400", description = "Código de idioma inválido (solo: es, en)."),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado.")
     })
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PatchMapping("/users/{id}/language")
