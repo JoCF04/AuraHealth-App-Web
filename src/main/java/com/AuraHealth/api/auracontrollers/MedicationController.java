@@ -30,7 +30,7 @@ public class MedicationController {
         this.medicationService = medicationService;
     }
 
-    // ── HU08 — Registrar ─────────────────────────────────────────────────────
+    // ── HU08 — Registrar nuevo medicamento ────────────────────────────────────
 
     @Operation(summary = "HU08 — Registrar nuevo medicamento",
                description = "Roles: USER · ADMIN — Valida duplicidad por nombre (case-insensitive).",
@@ -41,7 +41,7 @@ public class MedicationController {
         @ApiResponse(responseCode = "401", description = "Token inválido o expirado."),
         @ApiResponse(responseCode = "403", description = "Sin permisos."),
         @ApiResponse(responseCode = "404", description = "Usuario no encontrado."),
-        @ApiResponse(responseCode = "409", description = "Medicamento duplicado.")
+        @ApiResponse(responseCode = "409", description = "Medicamento duplicado — verifica la dosis.")
     })
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PostMapping("/users/{userId}/medications")
@@ -83,15 +83,21 @@ public class MedicationController {
         return ResponseEntity.ok(medicationService.obtenerPorId(userId, id));
     }
 
-    // ── HU08 — Actualizar ────────────────────────────────────────────────────
+    // ── HU08 — Actualizar medicamento existente ───────────────────────────────
 
     @Operation(summary = "HU08 — Actualizar medicamento",
                description = "Roles: USER · ADMIN",
                security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Medicamento actualizado."),
+        @ApiResponse(responseCode = "404", description = "Medicamento o usuario no encontrado."),
+        @ApiResponse(responseCode = "409", description = "Nombre duplicado.")
+    })
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @PutMapping("/users/{userId}/medications/{id}")
     public ResponseEntity<MedicationResponseDTO> updateMedication(
-            @PathVariable Long userId, @PathVariable Long id,
+            @PathVariable Long userId,
+            @PathVariable Long id,
             @Valid @RequestBody MedicationRequestDTO dto) {
         return ResponseEntity.ok(medicationService.actualizar(userId, id, dto));
     }

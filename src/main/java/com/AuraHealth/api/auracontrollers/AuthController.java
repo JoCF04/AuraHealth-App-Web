@@ -18,32 +18,30 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Auth · Autenticación JWT",
-     description = "HU02 — Login con token JWT. Usar token en: Authorization: Bearer <token>")
+     description = "HU02/HU03 — Login y logout con token JWT.")
 public class AuthController {
 
-    private final AuthenticationManager  authenticationManager;
-    private final JwtTokenUtil           jwtTokenUtil;
-    private final JwtUserDetailsService  userDetailsService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtUserDetailsService userDetailsService;
 
     public AuthController(AuthenticationManager authenticationManager,
                           JwtTokenUtil jwtTokenUtil,
                           JwtUserDetailsService userDetailsService) {
         this.authenticationManager = authenticationManager;
-        this.jwtTokenUtil          = jwtTokenUtil;
-        this.userDetailsService    = userDetailsService;
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.userDetailsService = userDetailsService;
     }
 
-    // ── HU02 — Login ─────────────────────────────────────────────────────────
-
     @Operation(summary = "HU02 — Iniciar sesión y obtener token JWT",
-               description = "Acceso: PÚBLICO — no requiere token.")
+               description = "Acceso: PÚBLICO")
     @ApiResponses({
-        @ApiResponse(responseCode = "200",
-            description = "Login exitoso. Copiar 'token' y usarlo en el botón Authorize de Swagger."),
+        @ApiResponse(responseCode = "200", description = "Login exitoso."),
         @ApiResponse(responseCode = "401", description = "Credenciales incorrectas.")
     })
     @PostMapping("/login")
@@ -54,15 +52,24 @@ public class AuthController {
         } catch (BadCredentialsException e) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas");
         }
-
         UserDetails userDetails = userDetailsService.loadUserByUsername(dto.getEmail());
         User user = userDetailsService.getUser(dto.getEmail());
         String token = jwtTokenUtil.generateToken(userDetails);
-        String role = user.getRoles().stream()
-                .map(r -> r.getName())
-                .findFirst()
-                .orElse("ROLE_USER");
-
+        String role = user.getRoles().stream().map(r -> r.getName()).findFirst().orElse("ROLE_USER");
         return ResponseEntity.ok(new JwtResponseDTO(token, user.getId(), user.getEmail(), role));
+    }
+
+    // ── HU03 — Logout (Lucia) ─────────────────────────────────────────────────
+
+    @Operation(summary = "HU03 — Cerrar sesión",
+               description = "JWT es stateless: el cliente debe eliminar el token local.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Logout confirmado."),
+        @ApiResponse(responseCode = "401", description = "Token inválido o expirado.")
+    })
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout() {
+        return ResponseEntity.ok(
+                Map.of("message", "Sesión cerrada correctamente. Elimina el token de tu almacenamiento local."));
     }
 }

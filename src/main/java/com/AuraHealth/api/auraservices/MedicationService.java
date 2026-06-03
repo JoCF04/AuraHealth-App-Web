@@ -21,19 +21,17 @@ public class MedicationService {
     private final MedicationRepository medicationRepository;
     private final UserRepository       userRepository;
 
-    public MedicationService(MedicationRepository medicationRepository,
-                              UserRepository userRepository) {
+    public MedicationService(MedicationRepository medicationRepository, UserRepository userRepository) {
         this.medicationRepository = medicationRepository;
         this.userRepository       = userRepository;
     }
 
-    // ── HU08 — Crear ─────────────────────────────────────────────────────────
+    // ── HU08 — Crear medicamento ──────────────────────────────────────────────
 
     @Transactional
     public MedicationResponseDTO crear(Long userId, MedicationRequestDTO dto) {
         User user = requireUser(userId);
         assertNoDuplicate(userId, dto.getName(), null);
-
         Medication m = new Medication();
         applyDto(dto, m, user);
         return toDto(medicationRepository.save(m));
@@ -53,7 +51,7 @@ public class MedicationService {
         return toDto(requireMedication(userId, id));
     }
 
-    // ── HU08 — Actualizar ────────────────────────────────────────────────────
+    // ── HU08 — Actualizar medicamento ─────────────────────────────────────────
 
     @Transactional
     public MedicationResponseDTO actualizar(Long userId, Long id, MedicationRequestDTO dto) {
@@ -94,8 +92,7 @@ public class MedicationService {
     private void assertNoDuplicate(Long userId, String name, Long excludeId) {
         if (name == null || name.isBlank()) return;
         String normalised = name.toLowerCase().strip();
-        boolean conflict = medicationRepository.findByUserIdOrderByNameAsc(userId)
-            .stream()
+        boolean conflict = medicationRepository.findByUserIdOrderByNameAsc(userId).stream()
             .filter(m -> excludeId == null || !m.getId().equals(excludeId))
             .anyMatch(m -> m.getName().toLowerCase().strip().equals(normalised));
         if (conflict) {
@@ -112,8 +109,7 @@ public class MedicationService {
         m.setFrequency(dto.getFrequency());
         m.setStartDate(parseDate(dto.getStartDate()));
         m.setEndDate(parseDate(dto.getEndDate()));
-        m.setIsSharedWithPartner(
-            dto.getIsSharedWithPartner() != null ? dto.getIsSharedWithPartner() : Boolean.FALSE);
+        m.setIsSharedWithPartner(dto.getIsSharedWithPartner() != null ? dto.getIsSharedWithPartner() : Boolean.FALSE);
         if (m.getIsCompletedToday() == null) m.setIsCompletedToday(Boolean.FALSE);
     }
 
@@ -123,20 +119,17 @@ public class MedicationService {
 
     private User requireUser(Long userId) {
         return userRepository.findById(userId)
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + userId));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + userId));
     }
 
     private void requireUserExists(Long userId) {
         if (!userRepository.existsById(userId))
-            throw new ResponseStatusException(
-                HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + userId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado con id: " + userId);
     }
 
     private Medication requireMedication(Long userId, Long id) {
         return medicationRepository.findByIdAndUserId(id, userId)
-            .orElseThrow(() -> new ResponseStatusException(
-                HttpStatus.NOT_FOUND,
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "Medicamento con id " + id + " no encontrado para el usuario " + userId));
     }
 
