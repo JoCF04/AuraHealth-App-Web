@@ -61,7 +61,7 @@ public class EducationalResourceService {
 
     // ── HU04 — Tips del día (3 aleatorios de los activos) ────────────────────
 
-    @Transactional(readOngit checkout developly = true)
+    @Transactional(readOnly = true)
     public List<DailyTipResponseDTO> obtenerTipsDelDia() {
         List<DailyTip> tips = dailyTipRepository.findByIsActiveTrue();
         Collections.shuffle(tips);
