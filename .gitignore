@@ -36,3 +36,4 @@ build/
 repomix-output.xml
 *.log
 .DS_Store
+.claude/

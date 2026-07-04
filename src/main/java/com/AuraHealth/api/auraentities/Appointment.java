@@ -3,8 +3,8 @@ package com.AuraHealth.api.auraentities;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "appointments")
@@ -23,13 +23,13 @@ public class Appointment {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "doctor_name")
+    @Column(name = "doctor_name", nullable = false)
     private String doctorName;
 
-    @Column(name = "specialty")
+    @Column(length = 100)
     private String specialty;
 
-    @Column(name = "clinic_name")
+    @Column(name = "clinic_name", length = 200)
     private String clinicName;
 
     @Column(name = "appointment_date", nullable = false)
@@ -48,8 +48,7 @@ public class Appointment {
     private LocalDateTime createdAt;
 
     @PrePersist
-    protected void onCreate() {
+    protected void onPersist() {
         this.createdAt = LocalDateTime.now();
-        if (this.isConfirmed == null) this.isConfirmed = Boolean.FALSE;
     }
 }
