@@ -190,9 +190,6 @@ public class ReminderService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                 "Formato de fecha inválido: '" + raw + "'. Use ISO-8601: 'YYYY-MM-DD'");
         }
-        if (date.isBefore(LocalDate.now()))
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                "La fecha programada '" + raw + "' no puede ser anterior a hoy");
         return date;
     }
 

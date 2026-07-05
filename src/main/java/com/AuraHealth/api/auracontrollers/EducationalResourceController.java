@@ -5,6 +5,8 @@ import com.AuraHealth.api.auraservices.EducationalResourceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,13 +17,23 @@ import java.util.List;
 @RequestMapping("/api/v1/resources")
 @Tag(name = "EP06-EP09 · Educational Library",
      description = "Biblioteca de salud preventiva y recomendaciones personalizadas.")
-@PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+@PreAuthorize("hasAnyRole('USER','DOCTOR','ADMIN')")
 public class EducationalResourceController {
 
     private final EducationalResourceService service;
 
     public EducationalResourceController(EducationalResourceService service) {
         this.service = service;
+    }
+
+    @Operation(summary = "HU21-NEW (EP06) — Crear recurso educativo",
+               description = "Roles: DOCTOR · ADMIN",
+               security = @SecurityRequirement(name = "bearerAuth"))
+    @PreAuthorize("hasAnyRole('DOCTOR','ADMIN')")
+    @PostMapping
+    public ResponseEntity<EducationalResourceResponseDTO> crear(
+            @RequestBody @Valid EducationalResourceRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.crear(dto));
     }
 
     @Operation(summary = "HU21/HU22 (EP06) — Listar recomendaciones de salud",

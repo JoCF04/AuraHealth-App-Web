@@ -70,6 +70,34 @@ public class EducationalResourceService {
             .collect(Collectors.toList());
     }
 
+    // ── Crear recurso (DOCTOR / ADMIN) ────────────────────────────────────────
+
+    @Transactional
+    public EducationalResourceResponseDTO crear(EducationalResourceRequestDTO dto) {
+        ResourceFormat format;
+        try {
+            format = ResourceFormat.valueOf(dto.getFormatType().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "formatType debe ser uno de: ARTICLE, INFOGRAPHIC, VIDEO, GUIDE"
+            );
+        }
+
+        EducationalResource resource = new EducationalResource();
+        resource.setTitle(dto.getTitle());
+        resource.setCategory(dto.getCategory());
+        resource.setDescription(dto.getDescription());
+        resource.setContent(dto.getContent());
+        resource.setImageUrl(dto.getImageUrl());
+        resource.setAuthor(dto.getAuthor());
+        resource.setFormatType(format);
+        resource.setDownloadUrl(dto.getDownloadUrl());
+        resource.setIsPublished(dto.getIsPublished() != null ? dto.getIsPublished() : Boolean.TRUE);
+
+        return toFullDto(resourceRepository.save(resource));
+    }
+
     // ── Mappers manuales ──────────────────────────────────────────────────────
 
     private EducationalResourceSummaryDTO toSummaryDto(EducationalResource r) {
